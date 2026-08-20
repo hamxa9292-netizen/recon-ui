@@ -537,3 +537,4 @@ select.field-input { font-family: var(--body); }
 .login-form { display: flex; flex-direction: column; gap: 18px; }
 .login-btn { width: 100%; text-align: center; margin-top: 4px; }
 .login-form .error-msg { margin-top: 2px; }
+.login-form .field-group { flex: none; width: 100%; max-width: none; min-width: 0; }
