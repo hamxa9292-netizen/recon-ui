@@ -6,7 +6,7 @@
 
   var API = (typeof API_URL !== "undefined")
     ? API_URL
-    : "https://stelco-recon-api.onrender.com";
+    : "https://reconserver.onrender.com";
 
   var SLOTS = [
     { key: "collection_csv",   label: "Collection Report (CSV)", icon: "🧾",
