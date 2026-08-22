@@ -167,6 +167,9 @@ body {
 .main-content { flex: 1; min-width: 0; }
 .step-panel { display: none; animation: rise .34s ease both; }
 .step-panel.active { display: block; }
+/* For the single always-shown panels (Adjustment / Adjustment (2)) — no
+   multi-step reveal needed, so no animation-timing dependency either. */
+.single-panel { display: block; }
 @keyframes rise { from { opacity: 0; transform: translateY(9px); } }
 
 .panel-header { margin-bottom: 26px; }
@@ -537,4 +540,3 @@ select.field-input { font-family: var(--body); }
 .login-form { display: flex; flex-direction: column; gap: 18px; }
 .login-btn { width: 100%; text-align: center; margin-top: 4px; }
 .login-form .error-msg { margin-top: 2px; }
-.login-form .field-group { flex: none; width: 100%; max-width: none; min-width: 0; }
