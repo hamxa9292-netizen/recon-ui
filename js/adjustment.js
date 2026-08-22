@@ -2,7 +2,7 @@
 // Independent of the reconciliation wizard. Diffs prior-month CLOSING
 // vs current-month OPENING debtors CSVs and downloads the Adjustment
 // Details .xlsx (with low-confidence rows flagged on a Review sheet).
-const ADJ_API_URL = "https://reconserver.onrender.com";
+const ADJ_API_URL = "https://stelco-recon-api.onrender.com";
 
 const ADJ_LOCATIONS = {
   male: "Male'", hulhumale: "Hulhumale'", thilafushi: "Thilafushi", gulhi_falhu: "Gulhi Falhu",
@@ -244,18 +244,13 @@ async function generateAdjustment() {
   }
 }
 
-// Tab switching: show #adjustmentTab / hide the reconciliation wizard
-function showTab(name) {
-  document.getElementById("reconTab").style.display   = name === "recon" ? "block" : "none";
-  document.getElementById("adjustmentTab").style.display = name === "adjustment" ? "block" : "none";
-  document.querySelectorAll(".top-tab").forEach(t =>
-    t.classList.toggle("active", t.dataset.tab === name));
-  if (name === "adjustment") renderAdjustmentTab();
-}
-
+// Tab switching is now owned solely by the unified switcher in index.html,
+// which calls renderAdjustmentTab() directly when this tab is opened.
+// (Removed the old duplicate .top-tab click handler here — having two
+// separate listeners toggle the same panels was fragile: if this one didn't
+// attach for any reason, the tab would show empty until a hard refresh.)
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".top-tab").forEach(t =>
-    t.addEventListener("click", () => showTab(t.dataset.tab)));
   const gen = document.getElementById("adjGenerateBtn");
   if (gen) gen.addEventListener("click", generateAdjustment);
 });
+
