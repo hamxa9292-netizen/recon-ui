@@ -378,10 +378,10 @@
 <script src="js/adjustment.js"></script>
 <script src="js/adjustment2.js"></script>
 <script>
-/* Unified tab switcher — owns all three tabs. Bound inside DOMContentLoaded so
-   it registers AFTER any handler in adjustment.js; running last means the final
-   panel visibility is always correct even if an older two-tab switcher also
-   fires. Non-blocking, so the Adjustment tab's own first-open init still runs. */
+/* Unified tab switcher — the single owner of all three tabs' visibility AND
+   initialization. Toggles panel display, then explicitly (re)renders the
+   tab being switched to, so nothing depends on another script's listener
+   having attached first. */
 document.addEventListener("DOMContentLoaded", function () {
   var unameEl = document.getElementById("headerUsername");
   if (unameEl) unameEl.textContent = Auth.getUsername();
@@ -398,6 +398,9 @@ document.addEventListener("DOMContentLoaded", function () {
         var el = document.getElementById(PANELS[name]);
         if (el) el.style.display = (name === target) ? "" : "none";
       });
+      if (target === "adjustment" && typeof window.renderAdjustmentTab === "function") {
+        window.renderAdjustmentTab();
+      }
       if (target === "adjustment2" && typeof window.initAdjustment2Tab === "function") {
         window.initAdjustment2Tab();
       }
