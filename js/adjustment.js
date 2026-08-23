@@ -2,7 +2,7 @@
 // Independent of the reconciliation wizard. Diffs prior-month CLOSING
 // vs current-month OPENING debtors CSVs and downloads the Adjustment
 // Details .xlsx (with low-confidence rows flagged on a Review sheet).
-const ADJ_API_URL = "https://stelco-recon-api.onrender.com";
+const ADJ_API_URL = "https://reconserver.onrender.com";
 
 const ADJ_LOCATIONS = {
   male: "Male'", hulhumale: "Hulhumale'", thilafushi: "Thilafushi", gulhi_falhu: "Gulhi Falhu",
