@@ -538,5 +538,10 @@ select.field-input { font-family: var(--body); }
 }
 .login-desc { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
 .login-form { display: flex; flex-direction: column; gap: 18px; }
+/* .field-group is normally used in horizontal rows elsewhere in the app
+   (flex-basis controls width there). login-form is a COLUMN flex container,
+   so that same flex-basis would apply to height instead — giving each field
+   a large empty box. Reset it here so fields sit at their natural height. */
+.login-form .field-group { flex: none; width: 100%; max-width: none; min-width: 0; }
 .login-btn { width: 100%; text-align: center; margin-top: 4px; }
 .login-form .error-msg { margin-top: 2px; }
