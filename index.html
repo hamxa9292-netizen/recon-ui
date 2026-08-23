@@ -158,12 +158,16 @@
       <!-- ── STEP 2: Upload ── -->
       <section class="step-panel" id="panel2">
         <div class="panel-header">
-          <h1 class="panel-title">Upload PDF Files</h1>
-          <p class="panel-desc">Upload the required reports for <strong id="locationLabel">—</strong>. All files printed from the billing system.</p>
+          <h1 class="panel-title" id="uploadPanelTitle">Upload PDF Files</h1>
+          <p class="panel-desc" id="uploadPanelDesc">Upload the required reports for <strong id="locationLabel">—</strong>. All files printed from the billing system.</p>
         </div>
 
         <div class="upload-grid" id="uploadGrid">
           <!-- Populated by JS based on location -->
+        </div>
+
+        <div class="date-row" id="uploadManualExtras" style="display:none;">
+          <!-- Hulhumale' CSV flow: WAMCO / Blue Ridge manual figures, populated by JS -->
         </div>
 
         <div class="panel-actions">
