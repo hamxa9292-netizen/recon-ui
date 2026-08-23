@@ -1,5 +1,5 @@
 // ── Config ────────────────────────────────────────────────────
-const API_URL = "https://reconserver.onrender.com";
+const API_URL = "https://stelco-recon-api.onrender.com";
 
 // ── State ─────────────────────────────────────────────────────
 const state = {
@@ -12,29 +12,28 @@ const state = {
 };
 
 // ── File slots per location ────────────────────────────────────
-const FILE_SLOTS = {
+// Male' and Hulhumale' reconcile straight from CSVs (same exports used for
+// the Adjustment tabs) — no PDFs. Thilafushi / Gulhi Falhu / Other Islands
+// still use the PDF flow.
+const CSV_LOCATIONS = new Set(["male", "hulhumale"]);
+
+const CSV_FILE_SLOTS = {
   male: [
-    { key: "open_pdf",       label: "Opening Debtors Summary", icon: "📂", desc: "Debtors Summary As At [opening date]",  required: true  },
-    { key: "close_pdf",      label: "Closing Debtors Summary", icon: "📁", desc: "Debtors Summary As At [closing date]", required: true  },
-    { key: "sales_pdf",      label: "Sales Report",            icon: "📊", desc: "Sales Report for the month",           required: true  },
-    { key: "misc_open_pdf",  label: "MISC Opening Summary",    icon: "📂", desc: "MISC Bills Debtors Summary (opening)", required: false },
-    { key: "misc_close_pdf", label: "MISC Closing Summary",    icon: "📁", desc: "MISC Bills Debtors Summary (closing)", required: false },
-    { key: "misc_sales_pdf", label: "MISC Sales Report",       icon: "📊", desc: "MISC Bills Sales Report",             required: false },
-    { key: "recon_pdf",      label: "Payment Reconciliation",  icon: "🧾", desc: "Payment Reconciliation Report Summary",required: true  },
-    { key: "collection_pdf", label: "Credits Summary",         icon: "💳", desc: "Cash Collection Credits Summary",     required: true  },
+    { key: "open_debtors_csv",  label: "Opening Debtors (CSV)", icon: "📂", desc: "Current month OPENING debtors export", required: true, accept: ".csv" },
+    { key: "close_debtors_csv", label: "Closing Debtors (CSV)", icon: "📁", desc: "Current month CLOSING debtors export", required: true, accept: ".csv" },
+    { key: "sales_csv",         label: "Sales (CSV)",           icon: "📊", desc: "Current month sales export",           required: true, accept: ".csv" },
+    { key: "collection_csv",    label: "Collection (CSV)",      icon: "💳", desc: "Current month collection/payments export", required: true, accept: ".csv" },
+    { key: "prior_close_csv",   label: "Prior Month Closing Debtors (CSV)", icon: "📁", desc: "For Adjustments (1) — leave blank to skip", required: false, accept: ".csv" },
+    { key: "credits_csv",       label: "Credits (CSV)",         icon: "🧾", desc: "Optional — leave blank to enter Credits/Fine manually in Review", required: false, accept: ".csv" },
+    { key: "misc_open_csv",     label: "MISC Opening Debtors (CSV)", icon: "📂", desc: "Optional — leave blank to enter MISC manually in Review", required: false, accept: ".csv" },
+    { key: "misc_close_csv",    label: "MISC Closing Debtors (CSV)", icon: "📁", desc: "Required together with MISC Opening", required: false, accept: ".csv" },
+    { key: "misc_sales_csv",    label: "MISC Sales (CSV)",      icon: "📊", desc: "Optional",                             required: false, accept: ".csv" },
+    { key: "misc_coll_csv",     label: "MISC Collection (CSV)", icon: "💳", desc: "Optional",                             required: false, accept: ".csv" },
   ],
-  hulhumale: [
-    { key: "open_pdf",            label: "Opening Debtors Summary", icon: "📂", desc: "Debtors Summary As At [opening date]",  required: true  },
-    { key: "close_pdf",           label: "Closing Debtors Summary", icon: "📁", desc: "Debtors Summary As At [closing date]", required: true  },
-    { key: "sales_pdf",           label: "Sales Report",            icon: "📊", desc: "Sales Report for the month",           required: true  },
-    { key: "misc_open_pdf",       label: "MISC Opening Summary",    icon: "📂", desc: "MISC Bills Debtors Summary (opening)", required: false },
-    { key: "misc_close_pdf",      label: "MISC Closing Summary",    icon: "📁", desc: "MISC Bills Debtors Summary (closing)", required: false },
-    { key: "misc_sales_pdf",      label: "MISC Sales Report",       icon: "📊", desc: "MISC Bills Sales Report",             required: false },
-    { key: "recon_pdf",           label: "Payment Reconciliation",  icon: "🧾", desc: "Payment Reconciliation Report Summary",required: true  },
-    { key: "collection_pdf",      label: "Credits Summary",         icon: "💳", desc: "Cash Collection Credits Summary",     required: true  },
-    { key: "billing_pdf",         label: "Billing System Collection", icon: "🧮", desc: "Electric fee subtotal, excl. GST / cost of service / ERP", required: true },
-    { key: "cash_collection_pdf", label: "Cash Collection Report",    icon: "🏦", desc: "Collections Dept report — Blueridge + WAMCO only",           required: true },
-  ],
+};
+CSV_FILE_SLOTS.hulhumale = CSV_FILE_SLOTS.male;   // identical file set; WAMCO/Blue Ridge are separate manual fields below
+
+const FILE_SLOTS = {
   thilafushi: [
     { key: "open_pdf",       label: "Opening Debtors Summary", icon: "📂", desc: "Debtors Summary As At [opening date]",  required: true  },
     { key: "close_pdf",      label: "Closing Debtors Summary", icon: "📁", desc: "Debtors Summary As At [closing date]", required: true  },
@@ -81,15 +80,9 @@ const REVIEW_FIELDS = [
   { key: "elec_bfadj",        label: "Balance b/f (after adjustment)",                               misc_key: "misc_bfadj"        },
   { key: "elec_sales",        label: "Total Sales/Additional Revenue",                               misc_key: "misc_sales"        },
   { key: "elec_credits",      label: "Credits / Fine",                                               misc_key: "misc_credits"      },
+  { key: "elec_discount",     label: "Discount",                                                     misc_key: "misc_discount"     },
   { key: "elec_collection",   label: "Collection for the month",                                     misc_key: "misc_collection"   },
   { key: "elec_close_system", label: "Debtors Balance c/f (from close.pdf — verify at month-end)",  misc_key: "misc_close_system" },
-];
-
-// Hulhumale extra fields
-const HULHUMALE_EXTRA = [
-  { key: "billing_system", label: "Billing System Collection", misc_key: null },
-  { key: "blueridge",      label: "Blueridge Collections",     misc_key: null },
-  { key: "wamco",          label: "WAMCO Collections",         misc_key: null },
 ];
 
 // ── Helpers ────────────────────────────────────────────────────
@@ -122,7 +115,7 @@ function computeRecon(f) {
   const e_coll = g("elec_collection"), m_coll = g("misc_collection");
   const e_cf = g("elec_close_system"), m_cf = g("misc_close_system");
   const e_sub1 = e_bfadj + e_sales, m_sub1 = m_bfadj + m_sales;
-  const e_sub2 = e_sub1 + e_cr + e_disc, m_sub2 = m_sub1 + m_cr + m_disc;
+  const e_sub2 = e_sub1 + e_cr - e_disc, m_sub2 = m_sub1 + m_cr - m_disc;
   const e_adj2 = e_cf - (e_sub2 - e_coll), m_adj2 = m_cf - (m_sub2 - m_coll);
   return [
     { label: "Balance b/f",            e: e_bf,    m: m_bf },
@@ -215,9 +208,20 @@ const uploadedFiles = {};
 function renderUploadSlots() {
   const grid = document.getElementById("uploadGrid");
   grid.innerHTML = "";
-  const slots = FILE_SLOTS[state.location] || [];
+  const isCsv = CSV_LOCATIONS.has(state.location);
+  const slots = (isCsv ? CSV_FILE_SLOTS[state.location] : FILE_SLOTS[state.location]) || [];
+
+  const titleEl = document.getElementById("uploadPanelTitle");
+  const descEl = document.getElementById("uploadPanelDesc");
+  const nextBtn = document.getElementById("step2Next");
+  if (titleEl) titleEl.textContent = isCsv ? "Upload CSV Files" : "Upload PDF Files";
+  if (descEl) descEl.innerHTML = isCsv
+    ? `Upload the debtor/sales/collection exports for <strong id="locationLabel">${LOCATION_NAMES[state.location] || "—"}</strong> — the same CSVs used for Adjustments (1) and (2). No PDFs needed.`
+    : `Upload the required reports for <strong id="locationLabel">${LOCATION_NAMES[state.location] || "—"}</strong>. All files printed from the billing system.`;
+  if (nextBtn) nextBtn.textContent = isCsv ? "Reconcile →" : "Parse Files →";
 
   slots.forEach(slot => {
+    const accept = slot.accept || ".pdf";
     const div = document.createElement("div");
     div.className = "upload-slot" + (slot.required ? "" : " optional");
     div.id = `slot_${slot.key}`;
@@ -231,11 +235,32 @@ function renderUploadSlots() {
       <div class="file-input-wrap">
         <label class="file-btn" id="btn_${slot.key}">
           Choose
-          <input type="file" accept=".pdf" data-key="${slot.key}" onchange="onFileChosen(this)">
+          <input type="file" accept="${accept}" data-key="${slot.key}" onchange="onFileChosen(this)">
         </label>
       </div>`;
     grid.appendChild(div);
   });
+
+  // Hulhumale' CSV flow needs these two manual figures (not in any CSV) —
+  // they get added straight into "Collection for the month" on the backend.
+  const extras = document.getElementById("uploadManualExtras");
+  if (extras) {
+    if (state.location === "hulhumale") {
+      extras.style.display = "flex";
+      extras.innerHTML = `
+        <div class="field-group">
+          <label class="field-label">WAMCO Collection (manual, MRF)</label>
+          <input class="field-input" type="text" id="manual_wamco" placeholder="0.00">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Blue Ridge Collection (manual, MRF)</label>
+          <input class="field-input" type="text" id="manual_blue_ridge" placeholder="0.00">
+        </div>`;
+    } else {
+      extras.style.display = "none";
+      extras.innerHTML = "";
+    }
+  }
 }
 
 function onFileChosen(input) {
@@ -254,7 +279,8 @@ function onFileChosen(input) {
 }
 
 function checkStep2() {
-  const slots = FILE_SLOTS[state.location] || [];
+  const isCsv = CSV_LOCATIONS.has(state.location);
+  const slots = (isCsv ? CSV_FILE_SLOTS[state.location] : FILE_SLOTS[state.location]) || [];
   const required = slots.filter(s => s.required).map(s => s.key);
   const allFilled = required.every(k => uploadedFiles[k]);
   document.getElementById("step2Next").disabled = !allFilled;
@@ -268,26 +294,37 @@ async function startParsing() {
   document.getElementById("reviewWrap").style.display = "none";
   document.getElementById("step3Next").style.display = "none";
 
+  const isCsv = CSV_LOCATIONS.has(state.location);
+
   // Step 1: Wake up the server first
   document.querySelector("#parsingStatus span").textContent = "Waking up server (may take ~60 seconds on first use)…";
   try { await fetch(`${API_URL}/`, { signal: AbortSignal.timeout(90000) }); } catch(e) {}
 
-  // Step 2: Send the files for parsing
-  document.querySelector("#parsingStatus span").textContent = "Parsing PDFs…";
+  // Step 2: Send the files for parsing / reconciling
+  document.querySelector("#parsingStatus span").textContent = isCsv ? "Reconciling CSVs…" : "Parsing PDFs…";
 
   try {
     const form = new FormData();
     form.append("location", state.location);
-    form.append("report_date", state.date);
 
-    const slots = FILE_SLOTS[state.location] || [];
+    const slots = (isCsv ? CSV_FILE_SLOTS[state.location] : FILE_SLOTS[state.location]) || [];
     for (const slot of slots) {
       if (uploadedFiles[slot.key]) {
         form.append(slot.key, uploadedFiles[slot.key]);
       }
     }
 
-    const res = await Auth.fetch(`${API_URL}/parse`, {
+    const endpoint = isCsv ? "/reconcile_csv" : "/parse";
+    if (isCsv) {
+      if (state.location === "hulhumale") {
+        form.append("wamco", parseNum(document.getElementById("manual_wamco")?.value));
+        form.append("blue_ridge", parseNum(document.getElementById("manual_blue_ridge")?.value));
+      }
+    } else {
+      form.append("report_date", state.date);
+    }
+
+    const res = await Auth.fetch(`${API_URL}${endpoint}`, {
       method: "POST",
       body: form,
       signal: AbortSignal.timeout(120000)  // 2 minute timeout
@@ -318,7 +355,6 @@ function renderReviewTable() {
   tbody.innerHTML = "";
 
   let fields = [...REVIEW_FIELDS];
-  if (state.location === "hulhumale") fields = [...HULHUMALE_EXTRA, ...fields];
 
   fields.forEach(field => {
     const elecVal = state.figures[field.key] ?? null;
